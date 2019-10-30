@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Todo
+    </ion-title>
+    <ion-icon class="icon-logout" name="log-out" (click)="logout()"></ion-icon>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-button fill="outline" shape="round" color="danger" (click)="add()">Add<ion-icon name="add"></ion-icon>
+  </ion-button>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Pull to refresh" refreshingSpinner="circles">
+    </ion-refresher-content>
+  </ion-refresher>
+  <ion-list>
+    <ion-list-header>Items</ion-list-header>
+    <ion-item-sliding *ngFor="let item of items" #slidingItem>
+      <ion-item (click)="edit(item)">
+        <ion-label>
+          <h2>{{item.title || "-"}}</h2>
+          <h3>{{item.text || "-"}}</h3>
+          
+        </ion-label>
+        <ion-icon name="md-checkmark-circle" *ngIf="item.completed"></ion-icon>
+        <ion-icon name="md-close" *ngIf="!item.completed"></ion-icon>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option expandable="true" color="danger" (click)="delete(item)" (click)="autoClose(slidingItem)">
+          <ion-icon name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

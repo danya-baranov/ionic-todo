@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>Item Details</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div id="map_canvas"></div>
+  <form (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label>Title</ion-label>
+      <ion-input type="text" name="title" [(ngModel)]="item.title"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Description</ion-label>
+      <ion-input type="text" name="text" [(ngModel)]="item.text"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Done</ion-label>
+      <ion-toggle color="primary" name="checked" [(ngModel)]="item.completed" (ionChange)="toggleChange($event)">
+      </ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-button color="danger" size="large" (click)="openLibrary()" fill="outline">
+        <ion-icon slot="icon-only" name="image"></ion-icon>
+      </ion-button>
+      <ion-button color="danger" size="large" (click)="addPhoto()" fill="outline">
+        <ion-icon slot="icon-only" name="camera"></ion-icon>
+      </ion-button>
+    </ion-item>
+
+    <ion-list>
+      <ion-item *ngFor="let photo of photos">
+        <ion-thumbnail slot="start" (click)="showPhoto(photo)">
+          <ion-img [src]="photo"></ion-img>
+        </ion-thumbnail>
+        <ion-label>{{item.text|| "-"}}</ion-label>
+        <ion-button slot="end" fill="clear" (click)="deleteFile(photo)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-button class="button-submit" size="large" color="primary" type="submit">Save</ion-button>
+  </form>
+</ion-content>

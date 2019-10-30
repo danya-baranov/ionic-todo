@@ -1,0 +1,12 @@
+{
+  "name": "client",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular",
+  "id": "ac339221",
+  "proxies": [{
+    "path": "/note",
+    "proxyUrl": "http://10.10.1.55:3000/note"
+  }]
+}
