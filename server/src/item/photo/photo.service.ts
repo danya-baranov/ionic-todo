@@ -1,8 +1,9 @@
+import { PhotoDto } from './../../DTO/photo.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ObjectID } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Photo } from '../../enteties/photo.model';
-import { fileURLToPath } from 'url';
+import { PhotoViewModel } from 'src/view-models/photo.view-model';
 
 @Injectable()
 export class PhotoService {
@@ -10,7 +11,7 @@ export class PhotoService {
         @InjectRepository(Photo) private photoRepository: Repository<Photo>,
         ) {}
 
-    async addPhotoToItem(id: ObjectID, photo: Photo) {
+    async addPhotoToItem(id: string, photo: PhotoDto) {
         const photoToSave = {
             itemId: id,
             photo: photo[0].filename,
@@ -19,13 +20,13 @@ export class PhotoService {
         return res;
     }
 
-    async getPhotoToItem(): Promise<Photo[]> {
+    async getPhotoToItem(): Promise<PhotoViewModel[]> {
         const res = await this.photoRepository.find();
-        return res;
+        return res as PhotoViewModel[];
     }
 
-    async getPhotoToItemById(id: ObjectID): Promise<Photo | undefined> {
-        return await this.photoRepository.findOne(id);
+    async getPhotoToItemById(id: string): Promise<PhotoViewModel> {
+        return await this.photoRepository.findOne(id) as PhotoViewModel;
     }
 
     async deletePhoto(id: string, namePhoto) {
@@ -35,7 +36,7 @@ export class PhotoService {
         // tslint:disable-next-line: only-arrow-functions
         fs.unlink(file + name, function(err) {
             // tslint:disable-next-line: no-console
-            console.error(err, ' Eror unlinka');
+            console.error(err, 'Error unlink');
         });
         return await this.photoRepository.delete(id);
     }

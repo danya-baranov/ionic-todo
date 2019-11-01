@@ -1,5 +1,4 @@
 import { Entity, Column, ObjectIdColumn, ObjectID, BeforeInsert } from 'typeorm';
-import * as crypto from 'crypto';
 
 @Entity()
 export class User {

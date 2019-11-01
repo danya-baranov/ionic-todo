@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectID } from 'typeorm';
+import { Entity, Column, ObjectIdColumn } from 'typeorm';
 
 @Entity()
 export class Photo {
@@ -10,5 +10,5 @@ export class Photo {
     itemId: string;
 
     @Column()
-    photo: any;
+    photo: string;
 }

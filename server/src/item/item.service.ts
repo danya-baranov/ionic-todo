@@ -1,9 +1,9 @@
+import { ItemViewModel } from './../view-models/item.view-model';
 import { Photo } from '../enteties/photo.model';
-import { ItemDto } from '../DTO/item.dto';
 import { Injectable } from '@nestjs/common';
 import { Item } from '../enteties/item.model';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ObjectID, getConnection } from 'typeorm';
+import { Repository, ObjectID } from 'typeorm';
 
 @Injectable()
 export class ItemService {
@@ -13,7 +13,7 @@ export class ItemService {
         @InjectRepository(Photo) private photoRepository: Repository<Photo>,
     ) { }
 
-    public async getItems(id): Promise<Item[]> {
+    async getItems(id): Promise<Item[]> {
         const item = await this.itemRepository.find({
             where: {
                 userId: String(id),
@@ -22,11 +22,20 @@ export class ItemService {
         return item;
     }
 
-    async getItem(id: ObjectID): Promise<Item | undefined> {
-        return await this.itemRepository.findOne(id);
+    async getItem(id: ObjectID): Promise<ItemViewModel> {
+        const res = await this.itemRepository.findOne(id);
+        const itemViewModel = new ItemViewModel();
+        itemViewModel.id = res.id.toString();
+        itemViewModel.title = res.title;
+        itemViewModel.text = res.text;
+        itemViewModel.photos = res.photos;
+        itemViewModel.latLng = res.latLng;
+        itemViewModel.completed = res.completed;
+        itemViewModel.userId = res.userId;
+        return itemViewModel;
     }
 
-    async addItem(item: ItemDto): Promise<Item> {
+    async addItem(item: ItemViewModel): Promise<ItemViewModel> {
         const savedItem = await this.itemRepository.save(item);
         // save images
         const images = savedItem.photos;
@@ -39,10 +48,20 @@ export class ItemService {
             };
             this.photoRepository.update(a._id, dat);
         });
-        return savedItem;
+
+        const itemViewModel = new ItemViewModel();
+        itemViewModel.id = savedItem.id.toString();
+        itemViewModel.title = savedItem.title;
+        itemViewModel.text = savedItem.text;
+        itemViewModel.photos = savedItem.photos;
+        itemViewModel.latLng = savedItem.latLng;
+        itemViewModel.completed = savedItem.completed;
+        itemViewModel.userId = savedItem.userId;
+
+        return itemViewModel;
     }
 
-    async updateItem(id: ObjectID, item: Item) {
+    async updateItem(id: string, item: ItemViewModel) {
         return await this.itemRepository.update(id, item);
     }
 
@@ -57,9 +76,9 @@ export class ItemService {
                 const fs = require('fs');
                 const file = 'uploads/';
                 // tslint:disable-next-line: only-arrow-functions
-                fs.unlink(file + name, function (err) {
+                fs.unlink(file + name, function(err) {
                     // tslint:disable-next-line: no-console
-                    console.error(err, ' Eror unlinka');
+                    console.error(err, 'Error unlink');
                 });
             });
             await this.photoRepository.remove(photos);
