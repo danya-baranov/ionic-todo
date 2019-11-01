@@ -1,4 +1,4 @@
-export interface UserResponse {
+export interface UserResponseViewModel {
     access_token: string;
     expires_in: number;
     status: number;

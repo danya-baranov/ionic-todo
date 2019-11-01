@@ -4,7 +4,7 @@ import { ObjectID } from 'typeorm';
 import { Controller, Get, Param, Post, Body, Put, Delete, UseInterceptors, UploadedFiles, Res, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ItemService } from './item.service';
-import { Item } from '../models/item.model';
+import { Item } from '../enteties/item.model';
 import { MulterOptions } from '../LoadConfg/multer-config';
 import { AuthGuard } from '@nestjs/passport';
 

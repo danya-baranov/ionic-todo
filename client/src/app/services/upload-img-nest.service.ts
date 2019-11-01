@@ -1,4 +1,5 @@
-import { Photo } from './../models/photo.model';
+import { BaseService } from './base.service';
+import { PhotoViewModel } from '../models/photo.view-model';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -6,38 +7,40 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
-export class UploadImgNestService {
+export class UploadImgNestService extends BaseService {
 
-  API_URL = 'http://10.10.1.55:3000/item';
-
-  constructor(private httpClient: HttpClient) { }
+  constructor(
+    private httpClient: HttpClient
+  ) {
+    super();
+  }
 
   uploadFile(files: any, id: number): Observable<any> {
     const data = new FormData();
     data.append('file', files);
-    return this.httpClient.post<any[]>(`${this.API_URL}/upload/${id}`, data);
+    return this.httpClient.post<any[]>(`${this.API_URL}/item/upload/${id}`, data);
   }
 
-  getPhoto(): Observable<Photo[]> {
-    return this.httpClient.get<Photo[]>(`${this.API_URL}/getPhotos`);
+  getPhoto(): Observable<PhotoViewModel[]> {
+    return this.httpClient.get<PhotoViewModel[]>(`${this.API_URL}/item/getPhotos`);
   }
 
   getPhotoById(id: number): Observable<any[]> {
-    return this.httpClient.get<any[]>(`${this.API_URL}/getPhotos/${id}`);
+    return this.httpClient.get<any[]>(`${this.API_URL}/item/getPhotos/${id}`);
   }
 
   deletePhoto(id: string, namePhoto: any): Observable<any> {
-    return this.httpClient.post<any>(`${this.API_URL}/deletePhotos/${id}`, {
+    return this.httpClient.post<any>(`${this.API_URL}/item/deletePhotos/${id}`, {
       namePhoto
     });
   }
 
   deleteNotePhotos(id: number): Observable<void> {
-    return this.httpClient.delete<void>(`${this.API_URL}/deletePhotos/${id}`);
+    return this.httpClient.delete<void>(`${this.API_URL}/item/deletePhotos/${id}`);
   }
 
   addNameForDeletePhoto(namePhoto: any[]): Observable<any[]> {
-    const result = this.httpClient.post<any[]>(this.API_URL, namePhoto);
+    const result = this.httpClient.post<any[]>(`${this.API_URL}/item/`, namePhoto);
     return result;
   }
 

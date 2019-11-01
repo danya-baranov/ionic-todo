@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ObjectID } from 'typeorm';
-import { Photo } from '../../models/photo.model';
+import { Photo } from '../../enteties/photo.model';
 import { fileURLToPath } from 'url';
 
 @Injectable()

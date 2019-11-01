@@ -1,3 +1,4 @@
+import { AddressViewModel } from './../../models/address.view-model';
 import { Component, OnInit } from '@angular/core';
 import {
   ToastController,
@@ -17,6 +18,8 @@ import {
   NativeGeocoderOptions,
   NativeGeocoderResult,
 } from '@ionic-native/native-geocoder/ngx';
+import { ItemViewModelGeo } from 'src/app/models/item.view-model';
+
 
 @Component({
   selector: 'app-geolocation',
@@ -26,21 +29,14 @@ import {
 export class GeolocationPage implements OnInit {
 
   map: GoogleMap;
-  address = {
-    countryName: '',
-    administrativeArea: '',
-    subAdministrativeArea: '',
-    thoroughfare: '',
-    subLocality: '',
-    subThoroughfare: '',
-  };
 
-  timetest: any;
+  address: AddressViewModel;
 
-  latLng = {
-    lat: 0,
-    lng: 0,
-  };
+  latLng: ItemViewModelGeo;
+
+  defaultCameraZoom: number;
+  defaultCameraDuration: number;
+  toastCtrlDuration: number;
 
   constructor(
     private toastCtrl: ToastController,
@@ -52,9 +48,19 @@ export class GeolocationPage implements OnInit {
     this.platform.ready();
     this.loadMap();
     this.geoCoder(this.latLng.lat, this.latLng.lng);
+
+    this.latLng = {
+      lat: 0,
+      lng: 0,
+    };
+
+    this.initAddressDefaultValues();
+    this.defaultCameraDuration = 5000;
+    this.defaultCameraZoom = 10;
+    this.toastCtrlDuration = 2000;
+
   }
 
-  geo() { }
 
   loadMap() {
     const options: GoogleMapOptions = {
@@ -83,8 +89,8 @@ export class GeolocationPage implements OnInit {
       // Move the map camera to the location with animation
       this.map.animateCamera({
         target: location.latLng,
-        zoom: 10,
-        duration: 5000
+        zoom: this.defaultCameraZoom,
+        duration: this.defaultCameraDuration
       });
 
       // add a marker
@@ -109,7 +115,6 @@ export class GeolocationPage implements OnInit {
       );
     })
       .catch(err => {
-        // this.loading.dismiss();
         this.showToast(err.error_message);
       });
   }
@@ -117,7 +122,7 @@ export class GeolocationPage implements OnInit {
   async showToast(message: string) {
     const toast = await this.toastCtrl.create({
       message,
-      duration: 2000,
+      duration: this.toastCtrlDuration,
       position: 'middle'
     });
     toast.present();
@@ -144,5 +149,17 @@ export class GeolocationPage implements OnInit {
       .catch(err => {
         console.log(err);
       });
+  }
+
+
+  private initAddressDefaultValues() {
+    this.address = {
+      countryName: '',
+      administrativeArea: '',
+      subAdministrativeArea: '',
+      thoroughfare: '',
+      subLocality: '',
+      subThoroughfare: '',
+    };
   }
 }

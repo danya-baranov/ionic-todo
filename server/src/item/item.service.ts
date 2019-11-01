@@ -1,7 +1,7 @@
-import { Photo } from '../models/photo.model';
+import { Photo } from '../enteties/photo.model';
 import { ItemDto } from '../DTO/item.dto';
 import { Injectable } from '@nestjs/common';
-import { Item } from '../models/item.model';
+import { Item } from '../enteties/item.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ObjectID, getConnection } from 'typeorm';
 

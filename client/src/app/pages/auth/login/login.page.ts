@@ -1,6 +1,8 @@
 import { Router } from '@angular/router';
 import { AuthService } from './../../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
+import { AppRoutingModule } from '../../../app-routing.module';
+import { RouteConstants } from 'src/app/constans-routing';
 
 
 @Component({
@@ -14,7 +16,8 @@ export class LoginPage implements OnInit {
     private authService: AuthService,
     private router: Router,
 
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -22,7 +25,7 @@ export class LoginPage implements OnInit {
   login(form) {
     this.authService.login(form.value).subscribe(res => {
       if (res.status === 200) {
-        this.router.navigateByUrl('home');
+        this.router.navigateByUrl(RouteConstants.homePage);
       } else if (res.status === 404) {
         alert('Wrong email or password');
       }
@@ -30,6 +33,6 @@ export class LoginPage implements OnInit {
   }
 
   navigateToRegistration() {
-    this.router.navigate(['/register']);
+    this.router.navigate([RouteConstants.registerPage]);
   }
 }

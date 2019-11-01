@@ -1,6 +1,6 @@
 import { ObjectID } from 'typeorm';
 import { UsersService } from './../users.service';
-import { User } from './../../models/user.model';
+import { User } from '../../enteties/user.model';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';

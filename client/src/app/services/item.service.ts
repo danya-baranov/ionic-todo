@@ -1,39 +1,43 @@
-import { Item } from '../models/item.model';
+import { ItemViewModel } from '../models/item.view-model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
+import { BaseService } from './base.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class NestMongoService {
+export class NestMongoService extends BaseService {
 
-  constructor(private http: HttpClient) { }
-
-  public selectedItem: Item;
-  public postItem: Item;
-  public itemSubject = new Subject<Item>();
-
-  API_URL = 'http://10.10.1.55:3000/item';
-
-  getItems(): Observable<Item[]> {
-    return this.http.get<Item[]>(this.API_URL);
+  constructor(
+    private http: HttpClient
+  ) {
+    super();
   }
 
-  getItemsById(id: number): Observable<Item[]> {
-    return this.http.get<Item[]>(`${this.API_URL}/${id}`);
+  public selectedItem: ItemViewModel;
+  public postItem: ItemViewModel;
+  public itemSubject = new Subject<ItemViewModel>();
+
+
+  getItems(): Observable<ItemViewModel[]> {
+    return this.http.get<ItemViewModel[]>(`${this.API_URL}/item`);
   }
 
-  postItems(data: Item): Observable<Item> {
-    const result = this.http.post<Item>(this.API_URL, data);
+  getItemsById(id: number): Observable<ItemViewModel[]> {
+    return this.http.get<ItemViewModel[]>(`${this.API_URL}/item/${id}`);
+  }
+
+  postItems(data: ItemViewModel): Observable<ItemViewModel> {
+    const result = this.http.post<ItemViewModel>(`${this.API_URL}/item`, data);
     return result;
   }
 
   deleteItemId(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/${id}`);
+    return this.http.delete<void>(`${this.API_URL}/item/${id}`);
   }
 
-  updateItem(data: Item): Observable<Item> {
-    return this.http.put<Item>(`${this.API_URL}/${data.id}`, data);
+  updateItem(data: ItemViewModel): Observable<ItemViewModel> {
+    return this.http.put<ItemViewModel>(`${this.API_URL}/item/${data.id}`, data);
   }
 }

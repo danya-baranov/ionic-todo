@@ -1,7 +1,11 @@
-import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
+import { RouteConstants } from './../../constans-routing';
+import { AppRoutingModule } from './../../app-routing.module';
+import { AddressViewModel } from './../../models/address.view-model';
+import { BaseService } from './../../services/base.service';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Item } from 'src/app/models/item.model';
+import { ItemViewModel, ItemViewModelGeo } from 'src/app/models/item.view-model';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { UploadImgNestService } from '../../services/upload-img-nest.service';
 import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
@@ -10,23 +14,22 @@ import {
   ToastController,
   Platform
 } from '@ionic/angular';
+
 import {
   GoogleMaps,
   GoogleMap,
   GoogleMapsEvent,
-  Marker,
   GoogleMapsAnimation,
   MyLocation,
   GoogleMapOptions,
   LatLng
 } from '@ionic-native/google-maps';
+
 import {
   NativeGeocoder,
-  NativeGeocoderOptions,
-  NativeGeocoderResult,
 } from '@ionic-native/native-geocoder/ngx';
 import { NestMongoService } from 'src/app/services/item.service';
-import { Geo } from 'src/app/models/geo.model';
+
 
 
 @Component({
@@ -34,23 +37,24 @@ import { Geo } from 'src/app/models/geo.model';
   templateUrl: './item-details.page.html',
   styleUrls: ['./item-details.page.scss'],
 })
+
 export class ItemDetailsPage implements OnInit {
-  @Input() item: Item;
+
+  @Input() item: ItemViewModel;
+
   checked: false;
   photos = [];
-  position: Geo;
-
-  IMG_URL = 'http://10.10.1.55:3000/uploads/';
+  position: ItemViewModelGeo;
 
   map: GoogleMap;
-  address = {
-    countryName: '',
-    administrativeArea: '',
-    subAdministrativeArea: '',
-    thoroughfare: '',
-    subLocality: '',
-    subThoroughfare: '',
-  };
+  address: AddressViewModel;
+
+  sliceSize: number;
+
+  quality: number;
+  targetHeight: number;
+  targetWidth: number;
+  zoom: number;
 
   private editMode: boolean = !!this.route.snapshot.queryParams.edit;
   constructor(
@@ -65,6 +69,7 @@ export class ItemDetailsPage implements OnInit {
     private storage: Storage,
     private route: ActivatedRoute,
     private itemService: NestMongoService,
+    private baseService: BaseService
   ) {
     this.uploadPhoto();
   }
@@ -74,17 +79,7 @@ export class ItemDetailsPage implements OnInit {
       this.item = this.itemService.selectedItem;
     }
     if (!this.editMode) {
-      this.item = {
-        title: '',
-        text: '',
-        photos: [],
-        completed: false,
-        latLng: {
-          lat: 0,
-          lng: 0,
-        },
-        userId: '',
-      };
+      this.initItemDefaultValues();
     }
     console.log(this.item.latLng);
     this.storage.get('USER_ID').then(id => {
@@ -92,6 +87,10 @@ export class ItemDetailsPage implements OnInit {
     });
     this.platform.ready();
     this.loadMap();
+    this.initAddressDefaultValues();
+    this.sliceSize = 512;
+    this.zoom = 15;
+    this.initCamearaDefaultOptions();
   }
 
 
@@ -99,18 +98,17 @@ export class ItemDetailsPage implements OnInit {
     if (this.editMode) {
       this.itemService.updateItem(this.item).subscribe((res) => {
         console.log(res);
-        // t
       });
     } else {
       this.itemService.postItems(this.item).subscribe(res => {
         this.itemService.itemSubject.next(res);
       });
     }
-    this.router.navigate(['home']);
+    this.router.navigate([RouteConstants.homePage]);
   }
 
   async close() {
-    this.router.navigate(['home']);
+    this.router.navigate([RouteConstants.homePage]);
     const undef = this.item.photos;
     await undef.forEach((del: { itemId: string; _id: string; photo: any; }) => {
       if (del.itemId === 'undefined') {
@@ -141,7 +139,7 @@ export class ItemDetailsPage implements OnInit {
     } else {
       this.map.animateCamera({
         target: this.item.latLng,
-        zoom: 17,
+        zoom: 15,
       });
       const nextMarker = this.map.addMarkerSync({
         title: 'You are here',
@@ -172,7 +170,7 @@ export class ItemDetailsPage implements OnInit {
       this.item.latLng = location.latLng;
       this.map.animateCamera({
         target: this.item.latLng,
-        zoom: 17
+        zoom: this.zoom,
       });
       const marker = this.map.addMarkerSync({
         title: 'You are here',
@@ -192,7 +190,7 @@ export class ItemDetailsPage implements OnInit {
       .subscribe(res => {
         res.forEach(element => {
           if (element.itemId === this.item.id) {
-            const path = this.IMG_URL + element.photo;
+            const path = `${this.baseService.API_URL}/uploads/` + element.photo;
             this.photos.unshift(path);
           }
         });
@@ -218,9 +216,9 @@ export class ItemDetailsPage implements OnInit {
 
   async addPhoto() {
     const options: CameraOptions = {
-      quality: 100,
-      targetHeight: 200,
-      targetWidth: 200,
+      quality: this.quality,
+      targetHeight: this.targetHeight,
+      targetWidth: this.targetWidth,
       mediaType: this.camera.MediaType.PICTURE,
       destinationType: this.camera.DestinationType.DATA_URL,
       encodingType: this.camera.EncodingType.JPEG,
@@ -230,7 +228,7 @@ export class ItemDetailsPage implements OnInit {
       const blob = this.getBlob(img, 'image/jpeg');
       console.log(blob);
       this.uploadImgNestService.uploadFile(blob, this.item.id).subscribe(res => {
-        const path = this.IMG_URL + res.result.photo;
+        const path = `${this.baseService.API_URL}/uploads/` + res.result.photo;
         this.photos.unshift(path);
         this.item.photos.push(res.result);
       });
@@ -239,9 +237,9 @@ export class ItemDetailsPage implements OnInit {
 
   async openLibrary() {
     const options: CameraOptions = {
-      quality: 100,
-      targetHeight: 200,
-      targetWidth: 200,
+      quality: this.quality,
+      targetHeight: this.targetHeight,
+      targetWidth: this.targetWidth,
       destinationType: this.camera.DestinationType.DATA_URL,
       sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
       encodingType: this.camera.EncodingType.JPEG,
@@ -249,16 +247,16 @@ export class ItemDetailsPage implements OnInit {
     await this.camera.getPicture(options).then((img) => {
       const blob = this.getBlob(img, 'image/jpeg');
       this.uploadImgNestService.uploadFile(blob, this.item.id).subscribe((res) => {
-        const path = this.IMG_URL + res.result.photo;
+        const path = `${this.baseService.API_URL}/uploads/` + res.result.photo;
         this.photos.unshift(path);
         this.item.photos.push(res.result);
       });
     });
   }
 
-  private getBlob(b64Data: string, contentType: string, sliceSize: number = 512) {
-    contentType = contentType || '';
-    sliceSize = sliceSize || 512;
+  private getBlob(b64Data: string, contentType: string, sliceSize: number = this.sliceSize) {
+    contentType = contentType;
+    sliceSize = sliceSize;
     const byteCharacters = atob(b64Data);
     const byteArrays = [];
 
@@ -275,4 +273,36 @@ export class ItemDetailsPage implements OnInit {
     const blob = new Blob(byteArrays, { type: contentType });
     return blob;
   }
+
+  private initAddressDefaultValues() {
+    this.address = {
+      countryName: '',
+      administrativeArea: '',
+      subAdministrativeArea: '',
+      thoroughfare: '',
+      subLocality: '',
+      subThoroughfare: '',
+    };
+  }
+
+  private initItemDefaultValues() {
+    this.item = {
+      title: '',
+      text: '',
+      photos: [],
+      completed: false,
+      latLng: {
+        lat: 0,
+        lng: 0,
+      },
+      userId: '',
+    };
+  }
+
+  private initCamearaDefaultOptions() {
+    this.quality = 100;
+    this.targetHeight = 200;
+    this.targetWidth = 200;
+  }
+
 }

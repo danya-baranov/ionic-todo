@@ -1,4 +1,4 @@
-import { User } from './../models/user.model';
+import { User } from '../enteties/user.model';
 import { AuthService } from './auth/auth.service';
 import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';

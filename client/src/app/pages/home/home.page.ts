@@ -2,8 +2,10 @@ import { AuthService } from './../../services/auth.service';
 import { Router, NavigationExtras } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { IonItemSliding, ModalController } from '@ionic/angular';
-import { Item } from 'src/app/models/item.model';
+import { ItemViewModel } from 'src/app/models/item.view-model';
 import { NestMongoService } from 'src/app/services/item.service';
+import { AppRoutingModule } from '../../app-routing.module';
+import { RouteConstants } from 'src/app/constans-routing';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +13,7 @@ import { NestMongoService } from 'src/app/services/item.service';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
-  items: Item[];
+  items: ItemViewModel[];
 
   constructor(
     public modalController: ModalController,
@@ -42,25 +44,25 @@ export class HomePage implements OnInit {
 
   async logout() {
     await this.authService.logout();
-    await this.router.navigateByUrl('login');
+    await this.router.navigateByUrl(RouteConstants.loginPage);
   }
 
-  add() {
-    this.router.navigate(['item-details']);
+  addItem() {
+    this.router.navigate([RouteConstants.itemDetailsPage]);
   }
 
-  async edit(item: Item) {
+  async editItem(item: ItemViewModel) {
     this.itemService.selectedItem = item;
     const navigationExtras: NavigationExtras = {
       queryParams: {
         edit: true,
       }
     };
-    await this.router.navigate(['item-details'], navigationExtras);
+    await this.router.navigate([RouteConstants.itemDetailsPage], navigationExtras);
   }
 
 
-  delete(item: Item) {
+  deleteItem(item: ItemViewModel) {
     const index = this.items.indexOf(item);
     if (index > -1) {
       this.items.splice(index, 1);

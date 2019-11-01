@@ -1,14 +1,14 @@
-import { User } from './models/user.model';
+import { User } from './enteties/user.model';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ItemService } from './item/item.service';
 import { ItemController } from './item/item.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Item } from './models/item.model';
+import { Item } from './enteties/item.model';
 import { MulterModule } from '@nestjs/platform-express';
 import { PhotoService } from './item/photo/photo.service';
-import { Photo } from './models/photo.model';
+import { Photo } from './enteties/photo.model';
 
 import { UsersModule } from './users/users.module';
 
